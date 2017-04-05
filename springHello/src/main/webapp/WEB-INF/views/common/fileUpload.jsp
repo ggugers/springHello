@@ -1,15 +1,25 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ko">
 	<head>	
-		<meta name="title" content="Amway Academy">
-		<meta name="keywords" content="Amway Academy">
-		<meta name="description" content="">
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge">		
+    <!-- page common -->
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <META http-equiv="Expires" content="0"> 
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- //page common -->
+
+    <meta name="keywords">
+<meta name="description">
+<meta content="index,follow" name="robots">
+<meta content="True" name="HandheldFriendly">
+<meta content="320" name="MobileOptimized">
+<meta content="telephone=no" name="format-detection">	
 	
-		<title>Amway Academy 관리자</title>
+		<title>파일업로드</title>
 		<script type="text/javascript" src="/js/jquery-1.10.2.min.js"></script>
 		<script type="text/javascript" src="/js/jquery.form.js"></script>
 		<script type="text/javascript">
@@ -99,7 +109,30 @@
 		        reader.readAsDataURL(html.files[0]);
 		    }
 		}
+		function downLoad(mode, file, name){
+			$("#mode").val(mode);
+			$("#file").val(file);
+			$("#name").val(name);
+			$("#down").submit();
+		}
+		function downLoadHref(mode, file, name){
+			$("#mode").val(mode);
+			$("#file").val(file);
+			$("#name").val(name);
+			var hrefUrl = $("#down").attr("action")+"?"+$("#down").serialize();
+			alert(hrefUrl)
+			location.href = hrefUrl;
+			//$("#down").submit();
+		}
 		
+        function fn_openBoardUpdate(){
+            var idx = "${map.IDX}";
+            var comSubmit = new ComSubmit();
+            comSubmit.setUrl("<c:url value='/sample/openBoardUpdate.do' />");
+            comSubmit.addParam("IDX", idx);
+            comSubmit.submit();
+        }
+
 		</script>
 	</head>
 	<body>
@@ -120,6 +153,17 @@
 		</table>
 		<a href="javascript:;" id="insertBtn" class="btn_green">저장</a>
 	</form>
+	<form id="down" name="down" action="/common/fileDownload.do">
+		<input type="hidden" name="mode" id="mode">
+		<input type="hidden" name="file" id="file">
+		<input type="hidden" name="name" id="name">
+	</form>
+	<c:set var="name" value="과업지시서-'''20160825.hwp" />
+
+	<p><a href="javascript:;" onclick='downLoad("course","824da37b10f44246939154439560a9c7.hwp","<c:out value="${name }" />")'>${name }</a></p>
+	<p><a href="javascript:;" onclick='downLoadHref("course","824da37b10f44246939154439560a9c7.hwp","<c:out value="${name }" />")'>${name }</a></p>
+	
+	<p><img src="/upload/course/한글.gif"></p>
 	</body>
 </html>
 		

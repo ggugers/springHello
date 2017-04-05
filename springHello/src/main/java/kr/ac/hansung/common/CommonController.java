@@ -1,7 +1,9 @@
 package kr.ac.hansung.common;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,5 +113,67 @@ public class CommonController {
 
 		return mav;
     }
+	
+	
+	/** 
+	 * 파일다운로드 
+	 * @param request 
+	 * @return 
+	 * @throws Exception 
+	 */ 
+	 @RequestMapping(value = "/common/fileDownload.do") 
+	public void downloadFileController(HttpServletRequest req, HttpServletResponse res) throws Exception { 
+		 String mode = req.getParameter("mode"); 
+		 String file = req.getParameter("file"); 
+		 file = file.replaceAll("\\.\\.\\/", "");  // 부정접근 방지
+		 logger.debug("LOGGER : 로그가 한글이 깨진다.");
+		 String name = req.getParameter("name");
+		 logger.debug("name = " + name);
+		 name = URLEncoder.encode(name, "UTF-8").replaceAll("%27","'");  //한글깨짐 방지
+		 logger.debug("name after= " + name);
+		 String folder = "temp"; 
+		 if("stamp".equals(mode)){ 
+			 folder = "stamp"; 
+		 }else if("course".equals(mode)){ 
+			 folder = "course"; 
+		 }else if("test".equals(mode)){ 
+			 folder = "test"; 
+		 }  // 폴더 접근 유효성 체크
+		 
+		 String fileFullPath = ROOT_UPLOAD_DIR+File.separator+folder+File.separator+file;  // 서버에 맞는 업로드 기본 폴더
+		 File downFile = new File(fileFullPath);  //파일 객체 생성
+		 if(downFile.isFile()){  // 파일이 존재하면
+			 int fSize = (int)downFile.length(); 
+			 res.setBufferSize(fSize); 
+			 res.setContentType("application/octet-stream"); 
+			 res.setHeader("Content-Disposition", "attachment; filename="+name+""); 
+			 res.setContentLength(fSize);  // 헤더정보 입력
+			 FileInputStream in  = new FileInputStream(downFile); 
+			 ServletOutputStream out = res.getOutputStream(); 
+			 try 
+			 { 
+				 byte[] buf=new byte[8192];  // 8Kbyte 로 쪼개서 보낸다.
+				 int bytesread = 0, bytesBuffered = 0; 
+				 while( (bytesread = in.read( buf )) > -1 ) { 
+					 out.write( buf, 0, bytesread ); 
+					 bytesBuffered += bytesread; 
+					 if (bytesBuffered > 1024 * 1024) { //아웃풋스트림이 1MB 가 넘어가면 flush 해준다.
+						 bytesBuffered = 0; 
+						 out.flush(); 
+					 } 
+				 } 
+			 } 
+			 finally { 
+				 if (out != null) { 
+					 out.flush(); 
+					 out.close(); 
+				 } 
+				 if (in != null) { 
+					 in.close(); 
+				 } 
+				 //	에러가 나더라도 아웃풋 flush와 close를 실행한다.
+			 } 
+		 } 
+	 }
 	
 }
