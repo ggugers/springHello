@@ -1,0 +1,14 @@
+create database productdb default character set utf8;
+
+show databases;
+
+use productdb;
+
+
+create table product(
+pid int(10) not null auto_increment primary key,
+name varchar(50),
+price int(10)
+);
+
+insert into product values(1, 'apple', 5);
